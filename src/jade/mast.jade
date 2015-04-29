@@ -1,0 +1,18 @@
+section#mast
+	div.container
+		div.left
+			a(href="/")
+				div#title PicShare
+			ul
+				| %s
+
+			</ul>
+		div.right
+			ul
+				| %s
+			
+			form(method="get", action="/search.php")
+				select(name="type")
+					option(value="tag") Photos
+					option(value="user") Users
+				input(type="text", name="q", placeholder="Search")

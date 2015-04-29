@@ -1,0 +1,29 @@
+div.page.white
+	div.title
+		div.left
+			| Photo by 
+			a(href="/profile.php?id=%s") %s
+		div.right
+			a(href="/album.php?id=%s") Return to album
+		
+	div.showImage
+		div.left
+			div.image
+				img(src="/image.php?id=%s")
+
+			div.activity
+				div.likes
+					form(method="post")
+						input(type="submit", name="likePhoto", value="%s")
+						|  %s
+
+				div.comments
+					h4 Comments
+					| % s
+		div.data
+			div.caption
+				h4 Caption
+				| %s
+			div.tags
+				h4 Tags
+				| %s

@@ -1,0 +1,47 @@
+div.page.white
+	div.title Sign up
+	form#signIn(method="post", action="signup.php")
+		fieldset
+			input(type="text", name="email", placeholder="Email", required)
+			input(type="password", name="password", placeholder="Password", required)
+
+		fieldset
+			input(type="text", name="firstName", placeholder="First name", required)
+			input(type="text", name="lastName", placeholder="Last name", required)
+		
+		fieldset
+			h4 Birthday
+			select(name="month")
+				option(value="") --Select month
+				| %s
+
+			select(name="day")
+				option(value="") --Select day
+				- for( var d = 1; d <= 31; d++ ){
+				option(value="#{d}") #{d}
+				- }
+
+			select(name="year")
+				option(value="") --Select year
+				- var year = new Date().getFullYear();
+				- for( var d = year; d > year-100; d-- ){
+				option(value="#{d}") #{d}
+				- }
+		
+		fieldset
+			select(name="gender")
+				option(value="") --Select gender
+				option(value="male") Male
+				option(value="female") Female
+
+		fieldset
+			input(type="text", name="homeCity", placeholder="Home city", required)
+			input(type="text", name="homeState", placeholder="Home state", size="2", required)
+			input(type="text", name="homeCountry", placeholder="Home country", required)
+	
+		fieldset
+			input(type="text", name="currentCity", placeholder="Current city", required)
+			input(type="text", name="currentState", placeholder="Current state", size="2", required)
+			input(type="text", name="currentCountry", placeholder="Current country", required)
+
+		input(type="submit" name="login" value="Sign up")
