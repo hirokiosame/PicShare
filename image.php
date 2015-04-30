@@ -1,29 +1,40 @@
 <?php
 
+// Author: Hiroki Osame <hirokio@bu.edu>
+// Project: PicShare (CS108 Project)
+// Date: April 29, 2015
+// File: image.php
+// Description: File that fetches a photo given the ID and displays it
+
+
 require_once("class.PicShare.php");
 
-if( isset($_GET['id']) ){
+// Make sure ID parameter is set and is numeric - otherwise throw error
+if( !isset($_GET['id']) || !is_numeric($_GET['id']) ){ die("You must provide a photo ID"); }
 
-	$PicShare = new PicShare();
+$PicShare = new PicShare();
 
-	$stmt = $PicShare->db->prepare('
-		SELECT	"imgType", "data"
-		FROM	Photos
-		WHERE	"photoId" = :photoId
-	');
-	
-	$stmt->execute([ "photoId" => $_GET['id'] ]);
+// Select photo by ID
+$stmt = $PicShare->db->prepare('
+	SELECT	"imgType", "data"
+	FROM	Photos
+	WHERE	"photoId" = :photoId
+	LIMIT 1
+');
 
+$stmt->execute([ "photoId" => $_GET['id'] ]);
 
-	if( $stmt->rowCount() > 0 ){
+// If the Photo exists
+if( $stmt->rowCount() > 0 ){
 
-		// Each row
-		$stmt->bindColumn("imgType", $imgType);
-		$stmt->bindColumn("data", $imgData);
-		$row = $stmt->fetch(PDO::FETCH_BOUND);
+	// Fetch image
+	$stmt->bindColumn("imgType", $imgType);
+	$stmt->bindColumn("data", $imgData);
+	$row = $stmt->fetch(PDO::FETCH_BOUND);
 
-		header("Content-type: " . $imgType);
-		print($imgData);
-	}
+	// Render image
+	header("Content-type: " . $imgType);
+	print($imgData);
 }
+
 ?>

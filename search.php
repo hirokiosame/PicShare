@@ -1,23 +1,31 @@
 <?php
 
+// Author: Hiroki Osame <hirokio@bu.edu>
+// Project: PicShare (CS108 Project)
+// Date: April 29, 2015
+// File: search.php
+// Description: Search page -- allows searching by tag for photos or by keyword for users
+
+
 require_once("class.PicShare.php");
 
+// Page is viewable by anyone
 $PicShare = new PicShare(0);
 
+
+// If no search type is set, or no query, ignore and redirect
 if( !isset($_GET['type']) || !isset($_GET['q']) ){ header("Location: /"); }
 
 
 $content = '';
 
+// If searching by tag, search for photos
 if( $_GET['type'] === "tag" ){
 
+	// Set title
 	$title = 'Photos tagged <u>' . $_GET['q'] . '</u>';
 
-	if( isset($_GET['user']) ){
-		$byUser = new Account($_GET['user']);
-		$title .= ' by ' . $byUser->getName();
-	}
-	
+	// Build select query to fetch all photos with the tag
 	$query = '
 		SELECT Photos."photoId", Photos.caption
 		FROM Tags, TaggedPhotos, Photos, Albums
@@ -29,28 +37,43 @@ if( $_GET['type'] === "tag" ){
 
 	$parameters = [ "tag" => $_GET['q'] ];
 
+
+	// If searching for photos by a specific user
 	if( isset($_GET['user']) ){
+		$byUser = new Account($_GET['user']);
+
+		// Extend title
+		$title .= ' by ' . $byUser->getName();
+
+		// Extend query
 		$query .= ' AND Albums."userId" = :userId';
+
+		// Add to parameters
 		$parameters['userId'] = $byUser->userId;
 	}
 
+	// Prepare & execute query
 	$getPhotos = $PicShare->db->prepare($query);
-
 	$getPhotos->execute($parameters);
 
-	while( $photo = $getPhotos->fetch() ){
 
-		// print_r($row);
+	// Render each photo with template
+	while( $photo = $getPhotos->fetch() ){
 		$content .= Template::view("gridBox", [
 			'/photo.php?id=' . $photo['photoId'],
 			'/image.php?id=' . $photo['photoId'],
 			$photo['caption']
 		]);
 	}
-}elseif( $_GET['type'] === 'user' ){
+}
+
+
+// If searching by user, accept keyword
+elseif( $_GET['type'] === 'user' ){
 
 	$title = 'Users that matched "'. $_GET['q'].'"';
 
+	// Find users where the keyword match email, firstname, or lastname
 	$getUsers = $PicShare->db->prepare('
 		SELECT	*
 		FROM	Users
@@ -62,6 +85,7 @@ if( $_GET['type'] === "tag" ){
 	$getUsers->execute([ "q" => '%'.$_GET['q'].'%' ]);
 
 
+	// Accmulate HTML
 	$content .= '<table>
 		<tr>
 			<th>First name</th>
@@ -71,13 +95,17 @@ if( $_GET['type'] === "tag" ){
 		</tr>
 	';
 
+	// For each user found
 	while( $user = $getUsers->fetch() ){
 
+		// If logged in and not self, list option to add as friend
 		if( isset($PicShare->account->userId) && $user['userId'] !== $PicShare->account->userId ){
 			$addFriend = '<form method="post" action="/profile.php?id='. $user['userId'] .'"><input type="submit" name="addFriend" value="Add friend"></form>';
 		}else{
 			$addFriend = '';
 		}
+
+		// Render profile as table-row
 		$content .= '<tr>
 			<td><a href="/profile.php?id='. $user['userId'] .'">'. $user['firstName'] .'</a></td>
 			<td><a href="/profile.php?id='. $user['userId'] .'">'. $user['lastName'] .'</a></td>
@@ -90,6 +118,7 @@ if( $_GET['type'] === "tag" ){
 }
 
 
+// Print HTML
 ob_start();
 ?>
 <div class="page white">

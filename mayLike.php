@@ -1,12 +1,19 @@
 <?php
 
+// Author: Hiroki Osame <hirokio@bu.edu>
+// Project: PicShare (CS108 Project)
+// Date: April 29, 2015
+// File: mayLike.php
+// Description: List photos user may like based on the photos uploaded and the tags the photos use
+
 require_once("class.PicShare.php");
 
-$PicShare = new PicShare(0);
+// Must be logged in to view
+$PicShare = new PicShare(1);
 
 
-$content = '';
-
+// Select photos uploaded by user, the tags the photos use, and find other photos that used the same tags
+// ordered by photos that have the most shared tags
 $getPhotos = $PicShare->db->prepare('
 	SELECT Photos."photoId", Photos.caption, COUNT(Photos."photoId") AS freq
 	FROM	TaggedPhotos,
@@ -34,14 +41,18 @@ $getPhotos = $PicShare->db->prepare('
 	ORDER BY freq DESC, Photos.tags ASC
 ');
 
-
 $getPhotos->execute([
 	"userId" => $PicShare->account->userId
 ]);
 
+
+// Aggregate variable
+$content = '';
+
+// For each photo
 while( $photo = $getPhotos->fetch() ){
 
-	// print_r($row);
+	// Render and append to aggregate variable
 	$content .= Template::view("gridBox", [
 		'/photo.php?id=' . $photo['photoId'],
 		'/image.php?id=' . $photo['photoId'],
@@ -49,6 +60,8 @@ while( $photo = $getPhotos->fetch() ){
 	]);
 }
 
+
+// Print HTML
 ob_start();
 ?>
 <div class="page white">

@@ -1,12 +1,19 @@
 <?php
 
+// Author: Hiroki Osame <hirokio@bu.edu>
+// Project: PicShare (CS108 Project)
+// Date: April 29, 2015
+// File: ranking.php
+// Description: Front-page of the website -- displays all of the albums
+
 require_once("class.PicShare.php");
 
+// Anyone can view
 $PicShare = new PicShare(0);
 
 
-$content = '';
-
+// Select Top 10 Users with the highest ranking
+// Ranking is determiend by number of photo uploads + number of comments
 $getUsers = $PicShare->db->prepare('
 	SELECT Users.*, SUM(photos.photos + comments.comments) AS score
 	FROM
@@ -34,10 +41,11 @@ $getUsers = $PicShare->db->prepare('
 	LIMIT 10
 ');
 
-
 $getUsers->execute();
 
-$content .= '<table>
+
+// Collect HTML
+$content = '<table>
 	<tr>
 		<th>First name</th>
 		<th>Last name</th>
@@ -46,6 +54,7 @@ $content .= '<table>
 	</tr>
 ';
 
+// Print in table format
 while( $user = $getUsers->fetch() ){
 
 	$content .= '<tr>
@@ -59,6 +68,7 @@ while( $user = $getUsers->fetch() ){
 $content .= '</table>';
 
 
+// Print HTML
 ob_start();
 ?>
 <div class="page white">

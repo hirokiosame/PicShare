@@ -1,5 +1,11 @@
 <?php
 
+// Author: Hiroki Osame <hirokio@bu.edu>
+// Project: PicShare (CS108 Project)
+// Date: April 29, 2015
+// File: index.php
+// Description: Front-page of the website -- displays all of the albums
+
 require_once("class.PicShare.php");
 
 $PicShare = new PicShare(0);
